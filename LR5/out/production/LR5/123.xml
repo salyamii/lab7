@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cities>
+    <city>
+        <id>1</id>
+        <name>1</name>
+        <coordinates>
+            <x>1.0</x>
+            <y>1</y>
+        </coordinates>
+        <creationDate>1409-06-02 11:41:38</creationDate>
+        <area>1.0</area>
+        <population>1</population>
+        <metersAboveSeaLevel>1.0</metersAboveSeaLevel>
+        <establishmentDate>2000-02-02</establishmentDate>
+        <telephoneCode>10</telephoneCode>
+        <climate>MONSOON</climate>
+        <governor>
+            <birthday>2000-02-02 02:02:02</birthday>
+        </governor>
+    </city>
+    <city>
+        <id>2</id>
+        <name>a</name>
+        <coordinates>
+            <x>2.0</x>
+            <y>2</y>
+        </coordinates>
+        <creationDate>1667-05-02 20:47:55</creationDate>
+        <area>3.0</area>
+        <population>4</population>
+        <metersAboveSeaLevel>5.0</metersAboveSeaLevel>
+        <establishmentDate>2000-02-07</establishmentDate>
+        <telephoneCode>7070</telephoneCode>
+        <climate>HUMIDCONTINENTAL</climate>
+        <governor>
+            <birthday>2020-02-02 02:02:02</birthday>
+        </governor>
+    </city>
+</cities>
