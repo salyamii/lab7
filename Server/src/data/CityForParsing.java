@@ -39,6 +39,8 @@ public class CityForParsing {
     @XmlElement
     private HumanForParsing governor; //Поле может быть null
 
+    private String creationDate;
+
     /** Constructor for creating a City
      * @param id
      * @param name
@@ -66,7 +68,25 @@ public class CityForParsing {
         this.climate = climate;
         this.governor = governor;
     }
+    public CityForParsing(long id, String name, Coordinates coordinates, String creationDate, double area, int population,
+                          float metersAboveSeaLevel, String establishmentDate, int telephoneCode, Climate climate,
+                          HumanForParsing governor){
+        this.id = id;
+        this.name = name;
+        this.coordinates = coordinates;
+        this.creationDate = creationDate;
+        this.area = area;
+        this.population = population;
+        this.metersAboveSeaLevel = metersAboveSeaLevel;
+        this.establishmentDate = establishmentDate;
+        this.telephoneCode = telephoneCode;
+        this.climate = climate;
+        this.governor = governor;
+    }
     public CityForParsing(){};
+
+    public String getCreationDate(){ return creationDate;}
+
     public long getId(){
         return this.id;
     }

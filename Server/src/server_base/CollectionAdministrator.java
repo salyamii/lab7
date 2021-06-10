@@ -24,6 +24,7 @@ import java.util.*;
 public class CollectionAdministrator {
     private final HashMap<Long, data.City> cities = new HashMap<>();
     private File xmlCollection;
+    private DatabaseHandler databaseHandler;
 
     private ZonedDateTime initializationDate;
 
@@ -35,61 +36,10 @@ public class CollectionAdministrator {
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER);
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
 
-    public CollectionAdministrator(String path) {
-        try{
-            if(IsFileValid.run(path)){
-                try{
-                    final QName startElementName = new QName("city");
-                    InputStream inputStream = new FileInputStream(new File(path));
-                    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-                    XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);
-                    JAXBContext jaxbContext = JAXBContext.newInstance(City.class);
-                    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-                    XMLEvent event;
-                    while((event = xmlEventReader.peek())!= null){
-                        if (event.isStartElement() && ((StartElement) event).getName().equals(startElementName)){
-                            City parsedCity = unmarshaller.unmarshal(xmlEventReader, City.class).getValue();
-                            Coordinates parsedCityCoordinates = parsedCity.getCoordinates();
-                            if(parsedCity.getName() != null && !parsedCity.getName().equals("")
-                                    && parsedCity.getCoordinates() != null
-                                    && parsedCity.getArea() > 0 && parsedCity.getPopulation() > 0
-                                    && parsedCity.getTelephoneCode() > 0 && parsedCity.getTelephoneCode() <= 1000000
-                                    && parsedCity.getClimate() != null && parsedCity.getGovernor() != null
-                                    && parsedCityCoordinates.getX() > -944) {
-                                if(parsedCity.getId() == 0)
-                                    parsedCity.setId(receiveID());
-                                if(parsedCity.getCreationDate() != null)
-                                    parsedCity.setCreationDate(receiveCreationDate());
-                                if(cities.containsKey(parsedCity.getId()))
-                                    System.out.println("The element in the collection with ID: "
-                                            + parsedCity.getId() + " will be replaced.");
-                                cities.put(parsedCity.getId(), parsedCity);
-                            }
-                        }
-                        else{
-                            xmlEventReader.nextEvent();
-                        }
-                    }
-                    System.out.println("Collection is loaded.");
-                    running = true;
-                    xmlCollection = new File(path);
-                    initializationDate = ZonedDateTime.now();
-                }
-                catch (JAXBException jaxbException){
-                    System.out.println("An error was encountered while creating the Unmarshaller object");
-                }
-                catch (XMLStreamException xmlStreamException){
-                    System.out.println("Can't peek an element from file.");
-                }
-            }
-            else{
-                System.out.println("File is not valid.");
-            }
-        }
-        catch (FileNotFoundException fileNotFoundException){
-            System.out.println("File not found.");
-        }
+    public CollectionAdministrator(DatabaseHandler databaseHandler) {
+        this.databaseHandler = databaseHandler;
     }
+    public CollectionAdministrator(){}
 
     private final ArrayList<String> helper = new ArrayList<>();
     {

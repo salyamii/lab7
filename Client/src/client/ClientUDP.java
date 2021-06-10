@@ -1,8 +1,5 @@
 package client;
 
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import data.*;
@@ -132,7 +129,8 @@ public class ClientUDP {
                         String whatReceived = new String(packet.getData(), 0, packet.getLength());
 
                         if(whatReceived.equals("okay")){
-                            String out = optionSplitted[0] + " " + mapper.writeValueAsString(updateCity(Long.parseLong(optionSplitted[1])));
+                            String out = optionSplitted[0] + " " +
+                                    mapper.writeValueAsString(updateCity(Long.parseLong(optionSplitted[1])));
                             buf = out.getBytes();
                             packet = new DatagramPacket(buf, buf.length, address, 4141);
                             socket.send(packet);
@@ -220,17 +218,10 @@ public class ClientUDP {
         socket.close();
     }
 
+
     public CityForParsing updateCity(long id){
         for( ; ; ){
             try{
-                /*System.out.print("Enter ID of a city: ");
-                long id;
-                try {
-                    id = in.nextInt();
-                }
-                catch (NoSuchElementException noSuchElementException){
-                    id = 0;
-                }*/
                 return new CityForParsing(id, receiveName(), receiveCoordinates(),
                         receiveArea(), receivePopulation(), receiveMetersAboveSeaLevel(),
                         receiveEstablishmentDateString(), receiveTelephoneCode(),
@@ -441,7 +432,7 @@ public class ClientUDP {
      * @return LocalDate establishmentDate
      */
     public LocalDate receiveEstablishmentDate() {
-        for (; ; ) {
+        for ( ; ; ) {
             try {
                 Scanner in = new Scanner(System.in);
                 System.out.println("Enter an establishment date in format yyyy-MM-dd.");
