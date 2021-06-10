@@ -1,1 +1,5 @@
 info
+show
+help
+execute_script D:\ProgLabs\LR5\src\script.txt
+exit

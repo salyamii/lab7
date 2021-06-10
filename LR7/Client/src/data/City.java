@@ -1,9 +1,13 @@
 package data;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Shkurenko Nikita
@@ -16,8 +20,7 @@ public class City {
     /** Field ID */
     @XmlElement
     private long id;
-    /** Field name
-     *  */
+    /** Field name */
     @XmlElement
     private String name;
     /** Field coordinates */
@@ -26,7 +29,7 @@ public class City {
     /** Field creationDate */
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     @XmlElement
-    private java.time.LocalDateTime creationDate;
+    private LocalDateTime creationDate;
     /** Field area */
     @XmlElement
     private double area; //Значение поля должно быть больш
@@ -38,8 +41,8 @@ public class City {
     private float metersAboveSeaLevel;
     /** Field establishmentDate */
     @XmlJavaTypeAdapter(value = LocalDateAdapter.class)
-    @XmlElement
-    private java.time.LocalDate establishmentDate;
+    @XmlElement(name = "establishmentDate")
+    private LocalDate establishmentDate;
     /** Field telephoneCode */
     @XmlElement
     private int telephoneCode; //Значение поля должно быть больше 0, Максимальное значение поля: 100000

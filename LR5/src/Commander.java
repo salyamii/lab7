@@ -49,7 +49,7 @@ public class Commander {
                                 collectionManager.show();
                                 break;
                             case "insert":
-                                collectionManager.insert(finalCommand[1]);
+                                collectionManager.insert();
                                 break;
                             case "remove_key":
                                 collectionManager.remove_key(finalCommand[1]);

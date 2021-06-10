@@ -1,32 +1,24 @@
-package data;
+package client;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import data.*;
 
-/**
- * @author Shkurenko Nikita
- * @version 1.0
- * Class for describing: Parameters of a city
- */
-@XmlRootElement(name = "city")
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "CityForParsing")
 @XmlAccessorType(XmlAccessType.NONE)
-public class City {
+public class CityForParsing {
     /** Field ID */
     @XmlElement
     private long id;
-    /** Field name
-     *  */
+    /** Field name */
     @XmlElement
     private String name;
     /** Field coordinates */
     @XmlElement
     private Coordinates coordinates;
-    /** Field creationDate */
-    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-    @XmlElement
-    private java.time.LocalDateTime creationDate;
     /** Field area */
     @XmlElement
     private double area; //Значение поля должно быть больш
@@ -37,9 +29,8 @@ public class City {
     @XmlElement
     private float metersAboveSeaLevel;
     /** Field establishmentDate */
-    @XmlJavaTypeAdapter(value = LocalDateAdapter.class)
-    @XmlElement
-    private java.time.LocalDate establishmentDate;
+    @XmlElement(name = "establishmentDate")
+    private  String establishmentDate;
     /** Field telephoneCode */
     @XmlElement
     private int telephoneCode; //Значение поля должно быть больше 0, Максимальное значение поля: 100000
@@ -48,13 +39,12 @@ public class City {
     private Climate climate; //Поле может быть null
     /** Field governor */
     @XmlElement
-    private Human governor; //Поле может быть null
+    private HumanForParsing governor; //Поле может быть null
 
     /** Constructor for creating a City
      * @param id
      * @param name
      * @param coordinates
-     * @param creationDate
      * @param area
      * @param population
      * @param metersAboveSeaLevel
@@ -64,14 +54,13 @@ public class City {
      * @param governor
      */
 
-    public City(long id, String name, Coordinates coordinates, LocalDateTime creationDate, double area, int population,
-                float metersAboveSeaLevel, LocalDate establishmentDate, int telephoneCode, Climate climate,
-                Human governor){
+    public CityForParsing(long id, String name, Coordinates coordinates, double area, int population,
+                float metersAboveSeaLevel, String establishmentDate, int telephoneCode, Climate climate,
+                HumanForParsing governor){
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
         this.area = area;
-        this.creationDate = creationDate;
         this.population = population;
         this.metersAboveSeaLevel = metersAboveSeaLevel;
         this.establishmentDate = establishmentDate;
@@ -79,26 +68,7 @@ public class City {
         this.climate = climate;
         this.governor = governor;
     }
-    /** Default constructor */
-    public City() {}
-
-    /** Method for printing City-class object into String representation */
-    @Override
-    public String toString() {
-        return "id: " + id + "\n" +
-                "name: " + name + "\n" +
-                "coordinates: " + coordinates + "\n" +
-                "area: " + area + "\n" +
-                "creationDate: " + creationDate.format(dateFormat) + "\n" +
-                "population: " + population + "\n" +
-                "metersAboveSeaLevel: " + metersAboveSeaLevel + "\n" +
-                "establishmentDate: " + establishmentDate + "\n" +
-                "telephoneCode: " + telephoneCode + "\n" +
-                "climate: " + climate + "\n" +
-                "governor: " + governor + "\n";
-
-    }
-
+    public CityForParsing(){};
     public long getId(){
         return this.id;
     }
@@ -116,10 +86,6 @@ public class City {
     public Coordinates getCoordinates(){return coordinates;}
     public void setCoordinates(Coordinates coordinates){this.coordinates = coordinates;}
 
-    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    public LocalDateTime getCreationDate(){return creationDate;}
-    public void setCreationDate(LocalDateTime creationDate){this.creationDate = creationDate;}
-
     public double getArea(){return area;}
     public void setArea(double area){this.area = area;}
 
@@ -129,8 +95,8 @@ public class City {
     public float getMetersAboveSeaLevel(){return metersAboveSeaLevel;}
     public void setMetersAboveSeaLevel(float metersAboveSeaLevel){this.metersAboveSeaLevel = metersAboveSeaLevel;}
 
-    public LocalDate getEstablishmentDate(){return establishmentDate;}
-    public void setEstablishmentDate(LocalDate establishmentDate){this.establishmentDate = establishmentDate;}
+    public String getEstablishmentDate(){return establishmentDate;}
+    public void setEstablishmentDate(String establishmentDate){this.establishmentDate = establishmentDate;}
 
     public int getTelephoneCode(){return telephoneCode;}
     public void setTelephoneCode(int telephoneCode){this.telephoneCode = telephoneCode;}
@@ -138,7 +104,6 @@ public class City {
     public Climate getClimate(){return climate;}
     public void setClimate(Climate climate){this.climate = climate;}
 
-    public Human getGovernor(){return governor;}
-    public void setGovernor(Human governor){this.governor = governor;}
-
+    public HumanForParsing getGovernor(){return governor;}
+    public void setGovernor(HumanForParsing governor){this.governor = governor;}
 }

@@ -32,40 +32,42 @@ public class CollectionManager {
     public static final String DATE_TIME_FORMATTER = "yyyy-MM-dd HH:mm:ss";
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-    /** HashMap collection for making a manual */
-    private final HashMap<String, String> commandsInfo;
+    /** Manual of commands *new* */
+    private final ArrayList<String> helper = new ArrayList<>();
     {
         wasStart = false;
         cities = new HashMap<Long, City>();
-
-        /** Manual of commands */
-        commandsInfo = new HashMap<>();
-        commandsInfo.put("help", " - display help for available commands");
-        commandsInfo.put("info", " - print all information about collection");
-        commandsInfo.put("show"," - print all elements in string representation to standard output");
-        commandsInfo.put("insert_null {element}", " - add a new element with a key");
-        commandsInfo.put("update_id {element}", " - refresh an element's value in collection (using id)");
-        commandsInfo.put("remove_key null", " - delete an element from collection by key");
-        commandsInfo.put("clear", " - clear the collection");
-        commandsInfo.put("save", " - save the collection to the file");
-        commandsInfo.put("execute_script file_name", " - read and execute script from the file");
-        commandsInfo.put("exit", " - exit the program (without saving)");
-        commandsInfo.put("remove_greater {element}", " - delete all elements that are greater");
-        commandsInfo.put("remove_greater_key null", " - delete all elements that have a key greater than inserted");
-        commandsInfo.put("remove_lower_key null", " - delete all elements that have a key lower than inserted");
-        commandsInfo.put("group_counting_by_population", " - group elements by population");
-        commandsInfo.put("count_by_establishment_date establishmentDate", " - display amount of elements with inserted establishment date");
-        commandsInfo.put("count_less_than_establishment_date establishmentDate", " - display amount of elements that have lower value of establishmentDate");
+        helper.add("help - display help for available commands.");
+        helper.add("info - print all information about collection.");
+        helper.add("show - print all elements in collection");
+        helper.add("insert - add a new element");
+        helper.add("update_id {id} - upadte an element with inserted id");
+        helper.add("remove_key {id} - delete an element from collection by key");
+        helper.add("clear - remove all elements from collection");
+        helper.add("save - saving the collection to the xml file");
+        helper.add("execute_script {file_name} - executing script from the file");
+        helper.add("exit - exit the program (without saving)");
+        helper.add("remove_greater {population} - removing elements with greater population field");
+        helper.add("remove_greater_key {id} - remove elements with greater id (key)");
+        helper.add("remove_lower_key {id} - remove elements with lower id (key)");
+        helper.add("group_counting_by_population - group elements by population");
+        helper.add("count_by_establishment_date {establishmentDate} - display amount of elements with inserted establishment date");
+        helper.add("count_less_than_establishment_date {establishmentDate} - display amount of elements that have lower value of establishmentDate");
 
     }
 
     // Constructor for checking a path to file existence and file readiness to work
-    public CollectionManager(){
+    public CollectionManager(String path){
         Scanner in = new Scanner(System.in);
         try{
             for( ; ; ){
-                System.out.print("Enter a full path to XML file with collection: ");
-                String pathToFile = in.nextLine();
+                String pathToFile;
+                if(checkFile(path))
+                    pathToFile = path;
+                else {
+                    System.out.print("Enter a full path to XML file with collection: ");
+                    pathToFile = in.nextLine();
+                }
                 if(checkFile(pathToFile)){
                     try{
                         final QName qName = new QName("city");
@@ -73,8 +75,7 @@ public class CollectionManager {
 
                         // create xml event reader for input stream
                         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-                        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader((inputStream));
-
+                        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);
                         // initialize jaxb
                         JAXBContext context = JAXBContext.newInstance(City.class);
                         Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -86,8 +87,8 @@ public class CollectionManager {
 
                         //Loop for unmarshalling collection
                         while((e = xmlEventReader.peek()) != null ) {
-                            //check the event is a Document start element
-                            if(e.isStartDocument() && ((StartElement) e).getName().equals(qName)){
+                            //check the event is a Document start element2
+                            if(e.isStartElement() && ((StartElement) e).getName().equals(qName)){
                                 //unmarshalling the document
                                 City unmarshalledCity = unmarshaller.unmarshal(xmlEventReader, City.class).getValue();
                                 Coordinates newCoordinates = unmarshalledCity.getCoordinates();
@@ -98,20 +99,15 @@ public class CollectionManager {
                                         && unmarshalledCity.getTelephoneCode() > 0 && unmarshalledCity.getTelephoneCode() <= 1000000
                                         && unmarshalledCity.getClimate() != null && unmarshalledCity.getGovernor() != null
                                         && newCoordinates.getX() > -944){
-                                    long idCity;
-                                    Random random = new Random();
-                                    while(true){
-                                        idCity = random.nextInt(1000);
-                                        if(!cities.containsKey(idCity)){
-                                            break;
-                                        }
-                                    }
-                                    unmarshalledCity.setId(idCity);
-                                    unmarshalledCity.setCreationDate(receiveCreationDate());
-                                    cities.put(idCity, unmarshalledCity);
-                                    for(Map.Entry<Long, City> city : cities.entrySet()){
-                                        System.out.println(city.getValue().toString() + "\n");
-                                    }
+
+                                    if(unmarshalledCity.getId() == 0)
+                                        unmarshalledCity.setId(receiveID());
+                                    if(unmarshalledCity.getCreationDate() != null)
+                                        unmarshalledCity.setCreationDate(receiveCreationDate());
+                                    if(cities.containsKey(unmarshalledCity.getId()))
+                                        System.out.println("The element in the collection with ID: "
+                                                + unmarshalledCity.getId() + " will be replaced.");
+                                    cities.put(unmarshalledCity.getId(), unmarshalledCity);
                                     counterGood++;
                                 }
                                 else{
@@ -119,7 +115,6 @@ public class CollectionManager {
                                 }
                             } else{
                                 xmlEventReader.next();
-                                //xmlEventReader.next();
                             }
                         }
                         System.out.println("Collection was loaded successfully. " + counterGood + " elements have been loaded.");
@@ -155,7 +150,7 @@ public class CollectionManager {
     public boolean checkFile(String pathToFile){
         File checkingFile = new File(pathToFile);
         if(!checkingFile.exists()){
-            System.out.println("File not found. Try again.");
+            System.out.println("File not found.");
             return false;
         }
         if(!checkingFile.canRead()){
@@ -166,14 +161,14 @@ public class CollectionManager {
             System.out.println("You can't write in this file. Try another.");
             return false;
         }
-        System.out.println("File is valid.");
+        //System.out.println("File is valid.");
         return true;
     }
 
     /** Method for printing manual */
     public void help() {
-        for(Map.Entry<String, String> entry : commandsInfo.entrySet()){
-            System.out.println(entry.getKey() + entry.getValue());
+        for(int i = 0; i < helper.size() ; i++){
+            System.out.println(helper.get(i));
         }
     }
 
@@ -187,6 +182,11 @@ public class CollectionManager {
 
     /** Method for printing all elements of the collection in string format */
     public void show(){
+        if(cities.isEmpty()){
+            System.out.println("Collection is empty.");
+            return;
+        }
+        System.out.println("All elements of the collection: ");
         for(Map.Entry<Long, City> city : cities.entrySet()){
             System.out.println(city.getValue().toString() + "\n");
         }
@@ -197,7 +197,7 @@ public class CollectionManager {
      * @return long id
      */
     public long receiveID(){
-        long id = 0;
+        long id = 1;
         while(true){
             if(cities.containsKey(id)){
                 id++;
@@ -227,10 +227,6 @@ public class CollectionManager {
             catch (InputMismatchException inputMismatchException){
                 System.out.println("This value must be String.");
             }
-            catch (NoSuchElementException noSuchElementException){
-                System.out.println("Program was stopped successfully.");
-                System.exit(1);
-            }
         }
     }
 
@@ -242,7 +238,7 @@ public class CollectionManager {
         for( ; ; ){
             try{
                 Scanner in = new Scanner(System.in);
-                System.out.print("Enter X coordinate in a float type. Value must be greater than -944 and can't be empty.");
+                System.out.println("Enter X coordinate in a float type. Value must be greater than -944 and can't be empty.");
                 float x = in.nextFloat();
                 String strX = Float.toString(x);
                 if(x < -944){
@@ -257,10 +253,6 @@ public class CollectionManager {
             }
             catch (InputMismatchException inputMismatchException){
                 System.out.println("This value must be a float-number type. Try again.");
-            }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was stopped successfully.");
-                System.exit(1);
             }
         }
     }
@@ -297,7 +289,7 @@ public class CollectionManager {
      * @return Coordinates coordinates
      */
     public Coordinates receiveCoordinates(){
-                return new Coordinates(receiveX(), receiveY());
+        return new Coordinates(receiveX(), receiveY());
     }
 
     /**
@@ -326,7 +318,9 @@ public class CollectionManager {
             case 9:
             case 11:
                 day = (int) Math.floor(Math.random()*29+1);
+                break;
             default:
+                break;
         }
         LocalDate date = LocalDate.of(year, month, day);
         LocalTime time = LocalTime.of((int) Math.floor(Math.random()* 23), (int) Math.floor(Math.random()* 59), (int) Math.floor(Math.random()* 59));
@@ -357,10 +351,6 @@ public class CollectionManager {
             catch(InputMismatchException inputMismatchException){
                 System.out.println("The value must be double type. Try again.");
             }
-            catch (NoSuchElementException noSuchElementException) {
-                System.out.println("Program was stopped successfully.");
-                System.exit(1);
-            }
         }
     }
 
@@ -388,10 +378,6 @@ public class CollectionManager {
             catch(InputMismatchException inputMismatchException){
                 System.out.println("Value must be int-type format.");
             }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was stopped successfully.");
-                System.exit(1);
-            }
         }
     }
 
@@ -415,10 +401,6 @@ public class CollectionManager {
             catch(InputMismatchException inputMismatchException){
                 System.out.println("Value must be float-type. Try again.");
             }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was stopped successfully. ");
-                System.exit(1);
-            }
         }
     }
 
@@ -441,7 +423,7 @@ public class CollectionManager {
                 return establishmentDate;
             } catch (InputMismatchException inputMismatchException) {
                 System.out.println("Date is a String object. Try again.");
-            } catch (Exception exception) {
+            } catch (IllegalArgumentException illegalArgumentException) {
                 System.out.println("Invalid date format. Try again.");
             }
         }
@@ -473,10 +455,6 @@ public class CollectionManager {
                 return code;
             }catch (InputMismatchException inputMismatchException){
                 System.out.println("Value of code must be int-type. Try again.");
-            }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was finished successfully.");
-                System.exit(1);
             }
         }
     }
@@ -513,10 +491,6 @@ public class CollectionManager {
             catch(InputMismatchException inputMismatchException){
                 System.out.println("This value must be a number (1, 2, 3, 4). Choose one and try again.");
             }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was finished successfully.");
-                System.exit(1);
-            }
         }
     }
 
@@ -539,25 +513,16 @@ public class CollectionManager {
             catch (DateTimeException dateTimeException){
                 System.out.println("Your data format is invalid. Try again.");
             }
-            catch(NoSuchElementException noSuchElementException){
-                System.out.println("Program was finished successfully.");
-                System.exit(1);
-            }
         }
     }
     /** Method for adding a new element with a key */
-    public void insert(String key){
-        try {
-            key = key.trim();
-            long id = Long.parseLong(key);
-            City newCity = new City(id, receiveName(), receiveCoordinates(), receiveCreationDate(), receiveArea(),
-                    receivePopulation(), receiveMetersAboveSeaLevel(), receiveEstablishmentDate(), receiveTelephoneCode(),
-                    receiveClimate(), receiveGovernor());
-            cities.put(id, newCity);
-        }
-        catch (Exception exception){
-            System.out.println("Enter a long-type value. Try again.");
-        }
+    public void insert(){
+        long id = receiveID();
+        City newCity = new City(id, receiveName(), receiveCoordinates(), receiveCreationDate(), receiveArea(),
+                receivePopulation(), receiveMetersAboveSeaLevel(), receiveEstablishmentDate(), receiveTelephoneCode(),
+                receiveClimate(), receiveGovernor());
+        cities.put(id, newCity);
+        System.out.println("A new city with " + id + " ID was inserted.");
     }
 
     /** Method for updating an element of collection */
@@ -565,13 +530,25 @@ public class CollectionManager {
         try{
             key = key.trim();
             long id = Long.parseLong(key);
-            cities.remove(id);
-            City updatedCity = new City(id, receiveName(), receiveCoordinates(), receiveCreationDate(),
-                    receiveArea(), receivePopulation(), receiveMetersAboveSeaLevel(), receiveEstablishmentDate(),
-                    receiveTelephoneCode(), receiveClimate(), receiveGovernor());
+            if(!cities.containsKey(id)){
+                System.out.println("There is no element with this ID in collection. Try another ID.");
+                return;
+            }
+            City updatedCity = cities.get(id);
+            updatedCity.setCreationDate(receiveCreationDate());
+            updatedCity.setArea(receiveArea());
+            updatedCity.setClimate(receiveClimate());
+            updatedCity.setCoordinates(receiveCoordinates());
+            updatedCity.setEstablishmentDate(receiveEstablishmentDate());
+            updatedCity.setGovernor(receiveGovernor());
+            updatedCity.setMetersAboveSeaLevel(receiveMetersAboveSeaLevel());
+            updatedCity.setPopulation(receivePopulation());
+            updatedCity.setTelephoneCode(receiveTelephoneCode());
+            updatedCity.setName(receiveName());
             cities.put(id, updatedCity);
+            System.out.println("City with " + id + " id was updated.");
         }
-        catch (Exception exception){
+        catch (NumberFormatException numberFormatException){
             System.out.println("Enter a long-type value. Try again.");
         }
     }
@@ -583,16 +560,14 @@ public class CollectionManager {
             long id = Long.parseLong(key);
             cities.remove(id);
             System.out.println("Element with an id :" + id + " removed.");
-        }catch(Exception exception){
+        }catch(NumberFormatException numberFormatException){
             System.out.println("Enter a long-type value. Try again.");
         }
     }
 
     /** Method for clearing the collection */
     public void clear(){
-        for(Map.Entry<Long, City> city : cities.entrySet()){
-            cities.remove(city.getKey());
-        }
+        cities.clear();
         System.out.println("Collection is empty now.");
     }
 
@@ -606,6 +581,7 @@ public class CollectionManager {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             //Marshal the cities list in file
             jaxbMarshaller.marshal(newCities, xmlCollection);
+            System.out.println("The collection was saved successfully!");
         }
         catch(JAXBException jaxbException){
             System.out.println("XML syntax error. Try again.");
@@ -615,70 +591,74 @@ public class CollectionManager {
     /** Method for executing from a file */
     public void execute_script (String nameOfFile){
         try{
-            System.out.println("To avoid recursion, your file shouldn't contain execute_script commands.");
             File file = new File(nameOfFile);
             Scanner sc = new Scanner(file);
             String []finalCommand;
             String command;
-            while(sc.hasNextLine()){
-                command = sc.nextLine();
-                finalCommand = command.trim().toLowerCase().split(" ", 2);
-                try {
-                    switch (finalCommand[0]) {
-                        case "help":
-                            help();
-                            break;
-                        case "info":
-                            info();
-                            break;
-                        case "show":
-                            show();
-                            break;
-                        case "insert":
-                            insert(finalCommand[1]);
-                            break;
-                        case "update_id":
-                            update_id(finalCommand[1]);
-                            break;
-                        case "remove_key":
-                            remove_key(finalCommand[1]);
-                            break;
-                        case "clear":
-                            clear();
-                            break;
-                        case "execute_script":
-                            System.out.println("You can't use execute_script command.");
-                            break;
-                        case "exit":
-                            exit();
-                        case "remove_greater":
-                            remove_greater(finalCommand[1]);
-                            break;
-                        case "remove_greater_key":
-                            remove_greater_key(finalCommand[1]);
-                            break;
-                        case "remove_lower_key":
-                            remove_lower_key(finalCommand[1]);
-                            break;
-                        case "group_counting_by_population":
-                            group_counting_by_population();
-                            break;
-                        case "count_by_establishment_date":
-                            count_by_establishment_date();
-                            break;
-                        case "count_less_than_establishment_date":
-                            count_less_than_establishment_date();
-                        default:
-                            System.out.println("Unknown command. Check help for information.");
+            if(!recursionDetector(nameOfFile)){
+                while(sc.hasNextLine()){
+                    command = sc.nextLine();
+                    finalCommand = command.trim().toLowerCase().split(" ", 2);
+                    try {
+                        switch (finalCommand[0]) {
+                            case "help":
+                                help();
+                                break;
+                            case "info":
+                                info();
+                                break;
+                            case "show":
+                                show();
+                                break;
+                            case "insert":
+                                insert();
+                                break;
+                            case "update_id":
+                                update_id(finalCommand[1]);
+                                break;
+                            case "remove_key":
+                                remove_key(finalCommand[1]);
+                                break;
+                            case "clear":
+                                clear();
+                                break;
+                            case "execute_script":
+                                execute_script(finalCommand[1]);
+                                break;
+                            case "exit":
+                                exit();
+                            case "remove_greater":
+                                remove_greater(finalCommand[1]);
+                                break;
+                            case "remove_greater_key":
+                                remove_greater_key(finalCommand[1]);
+                                break;
+                            case "remove_lower_key":
+                                remove_lower_key(finalCommand[1]);
+                                break;
+                            case "group_counting_by_population":
+                                group_counting_by_population();
+                                break;
+                            case "count_by_establishment_date":
+                                count_by_establishment_date();
+                                break;
+                            case "count_less_than_establishment_date":
+                                count_less_than_establishment_date();
+                            default:
+                                System.out.println("Unknown command. Check help for information.");
+                        }
+                    }
+                    catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException){
+                        System.out.println("Argument of command is absent. Check help for information.");
                     }
                 }
-                catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException){
-                    System.out.println("Argument of command is absent. Check help for information.");
-                }
+            }
+            else{
+                System.out.println("This script is recursive! Fix the script or use another one.");
             }
         }
-        catch(NoSuchElementException | FileNotFoundException noSuchElementException){
-            System.out.println("Program will be finished now.");
+        catch(FileNotFoundException noSuchElementException){
+            System.out.println("File can't be read. Program will be finished.");
             System.exit(1);
         }
     }
@@ -687,7 +667,7 @@ public class CollectionManager {
     public void exit(){
         try{
             System.out.println("Program will be finished now.");
-            TimeUnit.SECONDS.sleep(3);
+            TimeUnit.SECONDS.sleep(1);
             System.exit(0);
         }
         catch(InterruptedException interruptedException){
@@ -706,13 +686,17 @@ public class CollectionManager {
                 return;
             }
             int populationMax = Integer.parseInt(strPopulation);
+            ArrayList<Long> greaterPopulationsIds = new ArrayList<>();
+
             for(Map.Entry<Long, City> city : cities.entrySet()){
                 if(city.getValue().getPopulation() > populationMax){
-                    cities.remove(city.getKey());
+                    greaterPopulationsIds.add(city.getValue().getId());
                 }
-
             }
-            System.out.println("Elements that have greater population value have been removed.");
+            System.out.println("Elements that have greater population value will be removed. Amount: " + greaterPopulationsIds.size() + ".");
+            for(int i = 0; i < greaterPopulationsIds.size(); i++){
+                cities.remove(greaterPopulationsIds.get(i));
+            }
         }
         catch(NumberFormatException numberFormatException){
             System.out.println("Value population must be int-type.");
@@ -724,13 +708,17 @@ public class CollectionManager {
     public void remove_greater_key (String k){
         try{
             k = k.trim();
+            ArrayList<Long> keys = new ArrayList<>();
             long key = Long.parseLong(k);
             for(Map.Entry<Long, City> city : cities.entrySet()){
                 if(city.getKey() > key)
-                    cities.remove(city.getKey());
+                    keys.add(city.getKey());
             }
-            System.out.println("Elements that has greater ID are removed.");
-        }catch(Exception exception){
+            System.out.println("Cities with greater keys will be removed. Amount of cities with greater keys: " + keys.size() + ".");
+            for(int i = 0; i < keys.size(); i++) {
+                cities.remove(keys.get(i));
+            }
+        }catch(NumberFormatException numberFormatException){
             System.out.println("Value must be a long-type format. Try again.");
         }
 
@@ -740,12 +728,17 @@ public class CollectionManager {
     public void remove_lower_key (String k){
         try{
             k = k.trim();
+            ArrayList<Long> keys = new ArrayList<>();
             long key = Long.parseLong(k);
             for(Map.Entry<Long, City> city : cities.entrySet()){
                 if(city.getKey() < key)
-                    cities.remove(city.getKey());
+                    keys.add(city.getKey());
             }
-        }catch(Exception exception){
+            System.out.println("Cities with lower keys will be deleted. Amount of cities with lower keys: " + keys.size() + ".");
+            for(int i = 0; i < keys.size(); i++) {
+                cities.remove(keys.get(i));
+            }
+        }catch(NumberFormatException numberFormatException){
             System.out.println("Value must be a long-type format. Try again.");
         }
 
@@ -754,17 +747,22 @@ public class CollectionManager {
     /** Method for grouping by population */
     public void group_counting_by_population(){
         HashMap<Long, Long> pop = new HashMap<Long, Long>();
-        pop = null;
         for(Map.Entry<Long, City> city : cities.entrySet()){
-            if(!pop.containsKey(city.getKey())){
-                pop.put(city.getKey(), (long) 1);
+            if(pop.get(city.getKey()) == null){
+                long key = city.getKey();
+                pop.put(key, (long) 1);
             }
             else{
+                System.out.println(city.getValue() + " " + city.getKey());
                 pop.put(city.getKey(),pop.get(city.getKey()) + 1);
             }
         }
+        if(pop.entrySet().isEmpty()){
+            System.out.println("There are no cities in collection.");
+            return;
+        }
         for(Map.Entry<Long, Long> population : pop.entrySet()){
-            System.out.println(population.getKey() + " people live in " + population.getValue() + " towns.");
+            System.out.println(population.getKey() + " people live in " + population.getValue() + " town(s).");
         }
     }
     /** Method for counting elements by establishment date */
@@ -817,6 +815,29 @@ public class CollectionManager {
             System.out.println("Invalid date format.");
             count_less_than_establishment_date();
         }
+    }
+    HashSet<String> suspectedFiles = new HashSet<>();
+    public boolean recursionDetector(String path) throws FileNotFoundException{
+        if(!checkFile(path)) {
+            System.out.println("Script with path: " + path + " is unavailable.");
+            return false;
+        }
+        File file = new File(path);
+        Scanner in = new Scanner(file);
+        String []script_path;
+        String str;
+        while(in.hasNextLine()){
+            str = in.nextLine();
+            script_path = str.trim().toLowerCase().split(" ", 2);
+            if(script_path[0].equals("execute_script") && suspectedFiles.contains(script_path[1])) {
+                return true;
+            }
+            else if(script_path[0].equals("execute_script")){
+                suspectedFiles.add(script_path[1]);
+                recursionDetector(script_path[1]);
+            }
+        }
+        return false;
     }
 }
 
