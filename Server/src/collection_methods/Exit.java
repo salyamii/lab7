@@ -9,7 +9,7 @@ public class Exit extends SimpleMethod{
 
     @Override
     public String run() {
-        getAdministrator().save();
+        //getAdministrator().save();
         return "Exiting the program.";
     }
 }

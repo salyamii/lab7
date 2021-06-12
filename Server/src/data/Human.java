@@ -37,7 +37,7 @@ public class Human {
     public LocalDateTime getBirthday() {
         return birthday;
     }
-    public String getBirthdayString(){ return birthdayString; }
+    public String getBirthdayString(){ return birthday.format(DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER)); }
 
     @Override
     public String toString() {

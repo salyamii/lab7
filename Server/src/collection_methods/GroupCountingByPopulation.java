@@ -17,19 +17,20 @@ public class GroupCountingByPopulation extends SimpleMethod{
         HashMap<Long, Long> pop = new HashMap<Long, Long>();
         String result = "";
         for(Map.Entry<Long, City> city : getAdministrator().getCities().entrySet()){
-            if(pop.get(city.getKey()) == null){
-                long key = city.getKey();
+            if(pop.get((long)city.getValue().getPopulation()) == null){
+                long key = city.getValue().getPopulation();
                 pop.put(key, (long) 1);
             }
             else{
-                pop.put(city.getKey(), pop.get(city.getKey() + 1));
+                Long popul = pop.get((long) city.getValue().getPopulation());
+                pop.put((long) city.getValue().getPopulation(), popul + 1);
             }
         }
         if(pop.entrySet().isEmpty()){
             return "There are no cities in collection.";
         }
         for(Map.Entry<Long, Long> population : pop.entrySet()){
-            result += "City: " + population.getKey() + " has population: " + population.getValue() + ";\n";
+            result += "Cities with population: " + population.getKey() + " amount: " + population.getValue() + ";\n";
         }
         return result;
     }

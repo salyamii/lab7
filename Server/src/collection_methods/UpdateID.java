@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import server_base.CollectionAdministrator;
 import data.City;
 import data.Human;
+import server_base.DatabaseHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class UpdateID extends SimpleMethod{
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
 
     @Override
-    public String run(String str){
+    public String run(String str, DatabaseHandler databaseHandler, String owner){
         try{
             XmlMapper xmlMapper = new XmlMapper();
             CityForParsing cityForParsing = xmlMapper.readValue(str, CityForParsing.class);
@@ -37,6 +38,11 @@ public class UpdateID extends SimpleMethod{
                 oldCity.setTelephoneCode(cityForParsing.getTelephoneCode());
                 oldCity.setClimate(cityForParsing.getClimate());
                 oldCity.setGovernor(new Human(LocalDateTime.parse(cityForParsing.getGovernor().getBirthday(), dateTimeFormatter)));
+
+                if(!databaseHandler.updateCity(oldCity, owner)) return "Access denied.";
+
+
+
                 getAdministrator().getCities().put(oldCity.getId(), oldCity);
                 getAdministrator().save();
                 return "City was updated.";

@@ -22,12 +22,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CollectionAdministrator {
-    private final HashMap<Long, data.City> cities = new HashMap<>();
+
+
+    private HashMap<Long, data.City> cities = new HashMap<>();
     private File xmlCollection;
     private DatabaseHandler databaseHandler;
 
     private ZonedDateTime initializationDate;
-
     private boolean running = false;
 
     public static final String DATE_FORMATTER = "yyyy-MM-dd";
@@ -40,6 +41,19 @@ public class CollectionAdministrator {
         this.databaseHandler = databaseHandler;
     }
     public CollectionAdministrator(){}
+    /*
+    static CollectionAdministrator instance;
+    public static CollectionAdministrator getInstance(){
+        if(instance == null)
+            instance = new CollectionAdministrator();
+        return instance;
+    }
+    */
+    public void init(){
+        cities = databaseHandler.loadCollection();
+        initializationDate = ZonedDateTime.now();
+        running = true;
+    }
 
     private final ArrayList<String> helper = new ArrayList<>();
     {
@@ -62,6 +76,9 @@ public class CollectionAdministrator {
 
     }
 
+    public DatabaseHandler getDatabaseHandler(){
+        return databaseHandler;
+    }
     /**
      * Method for printing manual
      */
@@ -841,5 +858,8 @@ public class CollectionAdministrator {
 
     public HashMap<Long, data.City> getCities() {
         return cities;
+    }
+    public void setCities(HashMap<Long, data.City> cities){
+        this.cities = cities;
     }
 }

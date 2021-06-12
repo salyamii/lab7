@@ -1,5 +1,6 @@
 package data;
 
+import javax.swing.text.DateFormatter;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -121,6 +122,9 @@ public class City {
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public LocalDateTime getCreationDate(){return creationDate;}
+    public String getCreationDateString(){
+        return creationDate.format(dateFormat);
+    }
     public void setCreationDate(LocalDateTime creationDate){this.creationDate = creationDate;}
 
     public double getArea(){return area;}
@@ -132,7 +136,11 @@ public class City {
     public float getMetersAboveSeaLevel(){return metersAboveSeaLevel;}
     public void setMetersAboveSeaLevel(float metersAboveSeaLevel){this.metersAboveSeaLevel = metersAboveSeaLevel;}
 
+    private final DateTimeFormatter dateFormat2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public LocalDate getEstablishmentDate(){return establishmentDate;}
+    public String getEstablishmentDateString(){
+        return establishmentDate.format(dateFormat2);
+    }
     public void setEstablishmentDate(LocalDate establishmentDate){this.establishmentDate = establishmentDate;}
 
     public int getTelephoneCode(){return telephoneCode;}

@@ -22,6 +22,8 @@ public class ClientUDP {
     HashSet<String> options = new HashSet<>();
     private byte[] buf = new byte[65535];
     private byte[] bufFromServer = new byte[65535];
+    private String[] regOrLog = null;
+    private String username = null;
     //Utility date formatters
     public static final String DATE_FORMATTER = "yyyy-MM-dd";
     public static final String DATE_TIME_FORMATTER = "yyyy-MM-dd HH:mm:ss";
@@ -78,6 +80,52 @@ public class ClientUDP {
 
     public void sendClient() {
         try{
+            //registration at first
+            boolean logFlag = true;
+            System.out.println("You need to sign up/sign in. \n" +
+                    "To sign up enter: register *login* *password*;\n" +
+                    "To sign in enter: login *login* *password*.\n" +
+                    "Amount of chars in username and password must be under 50.");
+            while(logFlag){
+                System.out.print("Enter your data: ");
+                regOrLog = in.nextLine().split(" ", 3);
+                if(regOrLog[1].length() > 50 || regOrLog[2].length() > 50){ continue; }
+
+                switch (regOrLog[0]){
+                    case "register":
+                        buf = ("register " + regOrLog[1] + " " + regOrLog[2]).getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        socket.send(packet);
+
+                        packet = new DatagramPacket(bufFromServer, bufFromServer.length);
+                        socket.receive(packet);
+                        String whatReceived = new String(packet.getData(), 0, packet.getLength());
+                        if(whatReceived.equals("You registered a new user profile.")){
+                            System.out.println(whatReceived);
+                            logFlag = false;
+                            username = regOrLog[1];
+                        }
+                        System.out.println(whatReceived);
+                        break;
+                    case "login":
+                        buf = ("login " + regOrLog[1] + " " + regOrLog[2]).getBytes();
+                        packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        socket.send(packet);
+
+                        packet = new DatagramPacket(bufFromServer, bufFromServer.length);
+                        socket.receive(packet);
+                        whatReceived = new String(packet.getData(), 0, packet.getLength());
+                        if(whatReceived.equals("You logged in successfully.")){
+                            System.out.println(whatReceived);
+                            logFlag = false;
+                            username = regOrLog[1];
+                        }
+                        System.out.println(whatReceived);
+                        break;
+                }
+            }
+
+            // then activating app
             running = true;
             while (running) {
                 System.out.print("Enter an option: ");
@@ -113,32 +161,33 @@ public class ClientUDP {
                         String whatReceived = new String(packet.getData(), 0, packet.getLength());
                         System.out.println(whatReceived);
 
-                        String out = optionSplitted[0] + " " + mapper.writeValueAsString(makeCity());
+                        String out = optionSplitted[0] + " " + username + " " + mapper.writeValueAsString(makeCity());
                         buf = out.getBytes();
                         packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("update_id")){
                         //checking if collection has element with certain id
-                        String checkId = "check_id " + optionSplitted[1];
+                        /*String checkId = "check_id " + optionSplitted[1];
                         buf = checkId.getBytes();
                         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
                         socket.receive(packet);
-                        String whatReceived = new String(packet.getData(), 0, packet.getLength());
+                        String whatReceived = new String(packet.getData(), 0, packet.getLength());?*/
 
-                        if(whatReceived.equals("okay")){
-                            String out = optionSplitted[0] + " " +
+                            String out = optionSplitted[0] + " " + username +  " " +
                                     mapper.writeValueAsString(updateCity(Long.parseLong(optionSplitted[1])));
                             buf = out.getBytes();
-                            packet = new DatagramPacket(buf, buf.length, address, 4141);
+                            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                             socket.send(packet);
-                        }
-                        else{
-                            System.out.print(whatReceived);
                             continue;
-                        }
+                    }
+                    else if(optionSplitted[0].equals("remove_key")){
+                        String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
+                        buf = out.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("help")){
                         for (String s : helper) {
@@ -211,8 +260,11 @@ public class ClientUDP {
         catch(NoSuchElementException noSuchElementException){
             System.out.println("\nInput faced loop, skipped.");
         }
+        catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException){
+            System.out.println("Some data is absent. Try again.");
+            sendClient();
+        }
     }
-
 
     public void close(){
         socket.close();
