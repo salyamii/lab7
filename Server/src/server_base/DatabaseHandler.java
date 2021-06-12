@@ -25,7 +25,7 @@ public class DatabaseHandler {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String CHECK_ID_PRESENT_REQUEST = "SELECT COUNT (*) AS count FROM cities WHERE id = ?";
     private static final String IS_OWNER_REQUEST = "SELECT COUNT(*) FROM cities WHERE id = ? AND owner = ?";
-    private static final String GET_ALL_CITIES_REQUEST = "SELECT COUNT(*) FROM cities";
+    private static final String GET_ALL_CITIES_REQUEST = "SELECT * FROM cities";
     private static final String REMOVE_BY_KEY_REQUEST = "DELETE FROM cities WHERE id = ?";
     private static final String UPDATE_CITIES_BY_ID_REQUEST = "UPDATE cities SET name = ?," +
             " coordinates_x = ?," +
@@ -207,6 +207,7 @@ public class DatabaseHandler {
 
             cityStatement.executeUpdate();
             cityStatement.close();
+            checkIfIdExist.close();
 
             connection.commit();
             connection.setAutoCommit(true);
@@ -217,13 +218,11 @@ public class DatabaseHandler {
      public void removeCitiesWithGreaterID(long id, String possibleOwner) throws SQLException{
         PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
         ResultSet resultSet = allCities.executeQuery();
-        while(resultSet.next()){
-            if(resultSet.getInt(1) != 0
-                    && isOwnerOf((long) resultSet.getInt(1), possibleOwner)
-                    && (long) resultSet.getInt(1) > id){
-                removeCityByID((long) resultSet.getInt(1), possibleOwner);
-            }
-        }
+         while(resultSet.next()){
+             if((long) resultSet.getInt(1) > id){
+                 removeCityByID((long) resultSet.getInt(1), possibleOwner);
+             }
+         }
         allCities.close();
      }
 
@@ -231,11 +230,17 @@ public class DatabaseHandler {
         PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
         ResultSet resultSet = allCities.executeQuery();
         while(resultSet.next()){
-            if(resultSet.getInt(1) != 0
-                    && isOwnerOf((long) resultSet.getInt(1), possibleOwner)
-                    && (long) resultSet.getInt(1) < id){
+            if((long) resultSet.getInt(1) < id){
                 removeCityByID((long) resultSet.getInt(1), possibleOwner);
             }
+        }
+        allCities.close();
+    }
+    public void clearCities(String possibleOwner) throws SQLException{
+        PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
+        ResultSet resultSet = allCities.executeQuery();
+        while(resultSet.next()){
+            removeCityByID((long) resultSet.getInt(1), possibleOwner);
         }
         allCities.close();
     }

@@ -10,6 +10,7 @@ import server_base.DatabaseHandler;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 
 public class UpdateID extends SimpleMethod{
     public UpdateID(CollectionAdministrator administrator){
@@ -41,10 +42,8 @@ public class UpdateID extends SimpleMethod{
 
                 if(!databaseHandler.updateCity(oldCity, owner)) return "Access denied.";
 
-
-
-                getAdministrator().getCities().put(oldCity.getId(), oldCity);
-                getAdministrator().save();
+                HashMap<Long, City> newCities = getAdministrator().getDatabaseHandler().loadCollection();
+                getAdministrator().setCities(newCities);
                 return "City was updated.";
             }
             else{

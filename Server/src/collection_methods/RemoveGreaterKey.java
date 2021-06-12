@@ -1,9 +1,11 @@
 package collection_methods;
 
+import data.City;
 import server_base.CollectionAdministrator;
 import server_base.DatabaseHandler;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 
 public class RemoveGreaterKey extends SimpleMethod{
     public RemoveGreaterKey(CollectionAdministrator administrator){
@@ -16,9 +18,10 @@ public class RemoveGreaterKey extends SimpleMethod{
             databaseHandler.removeCitiesWithGreaterID(Long.parseLong(str), owner);
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
-            return "Database ERROR. The collection will not be changed." ;
+            return "Database ERROR. Can not remove greater elements." ;
         }
-        getAdministrator().remove_greater_key(str);
+        HashMap<Long, City> newCities = getAdministrator().getDatabaseHandler().loadCollection();
+        getAdministrator().setCities(newCities);
         //getAdministrator().save();
         return "Elements with greater key were removed.";
     }
