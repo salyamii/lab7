@@ -193,6 +193,12 @@ public class ClientUDP {
                         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                     }
+                    else if(optionSplitted[0].equals("remove_greater_key")){
+                        String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
+                        buf = out.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        socket.send(packet);
+                    }
                     else if(optionSplitted[0].equals("help")){
                         for (String s : helper) {
                             System.out.println(s);

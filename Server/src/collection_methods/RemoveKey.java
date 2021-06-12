@@ -13,15 +13,16 @@ public class RemoveKey extends SimpleMethod{
     @Override
     public String run(String str, DatabaseHandler databaseHandler, String owner){
         try{
-            databaseHandler.removeCityByID(Long.parseLong(str), owner);
+            if (!databaseHandler.removeCityByID(Long.parseLong(str), owner))
+                return "Access denied.";
+
         }
         catch (Exception sqlException){
             sqlException.printStackTrace();
-            return "Access denied.";
+            return "Something went wrong";
         }
 
         getAdministrator().remove_key(str);
-        //getAdministrator().save();
         return "City with key: "+ str + " was removed.";
     }
 }

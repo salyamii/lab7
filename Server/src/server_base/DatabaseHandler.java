@@ -25,6 +25,7 @@ public class DatabaseHandler {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String CHECK_ID_PRESENT_REQUEST = "SELECT COUNT (*) AS count FROM cities WHERE id = ?";
     private static final String IS_OWNER_REQUEST = "SELECT COUNT(*) FROM cities WHERE id = ? AND owner = ?";
+    private static final String GET_ALL_CITIES_REQUEST = "SELECT COUNT(*) FROM cities";
     private static final String REMOVE_BY_KEY_REQUEST = "DELETE FROM cities WHERE id = ?";
     private static final String UPDATE_CITIES_BY_ID_REQUEST = "UPDATE cities SET name = ?," +
             " coordinates_x = ?," +
@@ -213,13 +214,46 @@ public class DatabaseHandler {
         }
         else return false;
      }
+     public void removeCitiesWithGreaterID(long id, String possibleOwner) throws SQLException{
+        PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
+        ResultSet resultSet = allCities.executeQuery();
+        while(resultSet.next()){
+            if(resultSet.getInt(1) != 0
+                    && isOwnerOf((long) resultSet.getInt(1), possibleOwner)
+                    && (long) resultSet.getInt(1) > id){
+                removeCityByID((long) resultSet.getInt(1), possibleOwner);
+            }
+        }
+        allCities.close();
+     }
+
+    public void removeCitiesWithLowerID(long id, String possibleOwner) throws SQLException{
+        PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
+        ResultSet resultSet = allCities.executeQuery();
+        while(resultSet.next()){
+            if(resultSet.getInt(1) != 0
+                    && isOwnerOf((long) resultSet.getInt(1), possibleOwner)
+                    && (long) resultSet.getInt(1) < id){
+                removeCityByID((long) resultSet.getInt(1), possibleOwner);
+            }
+        }
+        allCities.close();
+    }
      public boolean isOwnerOf(long id, String possibleOwner) throws SQLException{
         PreparedStatement ownerStatement = connection.prepareStatement(IS_OWNER_REQUEST);
         ownerStatement.setLong(1, id);
         ownerStatement.setString(2, possibleOwner);
         ResultSet resultSet = ownerStatement.executeQuery();
+
         resultSet.next();
-        return resultSet.getInt(1) == 1;
+        if(resultSet.getInt(1) == 1){
+            ownerStatement.close();
+            return true;
+        }
+        else{
+            ownerStatement.close();
+            return false;
+        }
      }
 
      public boolean checkID(long id) throws SQLException{
@@ -227,7 +261,14 @@ public class DatabaseHandler {
         check.setLong(1, id);
         ResultSet resultSet = check.executeQuery();
         resultSet.next();
-        return resultSet.getInt(1) != 0;
+        if(resultSet.getInt(1) != 0){
+            check.close();
+            return true;
+        }
+        else{
+            check.close();
+            return false;
+        }
      }
 
      public boolean validateUser(String username, String password) throws SQLException{
