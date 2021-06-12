@@ -225,12 +225,16 @@ public class CollectionAdministrator {
             System.out.println("XML syntax error. Try again.");
         }
     }
+
+    public HashSet<String> getIfRecursive(){
+        return ifRecursive;
+    }
+    HashSet<String> ifRecursive = new HashSet<>();
+    boolean flag = true;
     /**
      * Execute from a file
      * @param nameOfFile
      */
-    HashSet<String> ifRecursive = new HashSet<>();
-    boolean flag = true;
     public void execute_script (String nameOfFile){
         try{
             ifRecursive.add(nameOfFile);
