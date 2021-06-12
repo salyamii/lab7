@@ -5,6 +5,9 @@ import data.Climate;
 import data.Coordinates;
 import data.Human;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -289,7 +292,7 @@ public class DatabaseHandler {
 
      public boolean validateUser(String username, String password) throws SQLException{
         PreparedStatement validateUserStatement = connection.prepareStatement(VALIDATE_USER_REQUEST);
-        String hashedPassword = password; // need to add hashing algorithm
+        String hashedPassword = get_SHA_512_SecurePassword(password, saltForHasher);
          validateUserStatement.setString(1, username);
          validateUserStatement.setString(2, hashedPassword);
          ResultSet resultSet = validateUserStatement.executeQuery();
@@ -307,7 +310,7 @@ public class DatabaseHandler {
      public boolean registerUser(String username, String password) throws SQLException {
         if(!ifUserExists(username)){
             PreparedStatement registerUserStatement = connection.prepareStatement(ADD_USER_REQUEST);
-            String hashedPassword = password; // need to add hashing algorithm
+            String hashedPassword = get_SHA_512_SecurePassword(password, saltForHasher);
             registerUserStatement.setString(1, username);
             registerUserStatement.setString(2, hashedPassword);
             registerUserStatement.executeUpdate();
@@ -331,4 +334,22 @@ public class DatabaseHandler {
             return false;
         }
      }
+    String saltForHasher = "f1nd1ngn3m0";
+    public String get_SHA_512_SecurePassword(String passwordToHash, String   salt){
+        String generatedPassword = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            md.update(salt.getBytes(StandardCharsets.UTF_8));
+            byte[] bytes = md.digest(passwordToHash.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i< bytes.length ;i++){
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            generatedPassword = sb.toString();
+        }
+        catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        }
+        return generatedPassword;
+    }
 }
