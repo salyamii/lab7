@@ -36,7 +36,7 @@ public class ServerUDP extends Thread{
         option.put("update_id", new UpdateID(administrator));
         option.put("remove_key", new RemoveKey(administrator));
         option.put("clear", new Clear(administrator));
-        option.put("save", new Save(administrator));
+        //option.put("save", new Save(administrator));
         option.put("execute_script", new ExecuteScript(administrator));
         option.put("remove_greater", new RemoveGreater(administrator));
         option.put("remove_greater_key", new RemoveGreaterKey(administrator));
@@ -69,8 +69,7 @@ public class ServerUDP extends Thread{
                 if(counter == TICKS_TO_DISCONNECT){
                     System.out.print("Disconnect?" +
                             "\nY - to disconnect" +
-                            "\nAny key - to stay online" +
-                            "\nsave - to save collection forcefully: ");
+                            "\nAny key - to stay online");
                     String exit = in.nextLine();
                     exit = exit.trim();
                     if(exit.equals("Y")) {
