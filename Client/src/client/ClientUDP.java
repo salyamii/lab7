@@ -120,7 +120,7 @@ public class ClientUDP {
                             logFlag = false;
                             username = regOrLog[1];
                         }
-                        System.out.println(whatReceived);
+                        else System.out.println(whatReceived);
                         break;
                 }
             }
@@ -174,6 +174,7 @@ public class ClientUDP {
                         socket.send(packet);
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
                         socket.receive(packet);
+
                         String whatReceived = new String(packet.getData(), 0, packet.getLength());
                         if(whatReceived.equals("okay")){
                             String out = optionSplitted[0] + " " + username +  " " +
@@ -205,6 +206,12 @@ public class ClientUDP {
                         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                     }
+                    else if(optionSplitted[0].equals("remove_greater")){
+                        String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
+                        buf = out.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        socket.send(packet);
+                    }
                     else if(optionSplitted[0].equals("help")){
                         for (String s : helper) {
                             System.out.println(s);
@@ -224,7 +231,7 @@ public class ClientUDP {
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("clear")){
-                        String out = "clear";
+                        String out = "clear " + username;
                         buf = out.getBytes();
                         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);

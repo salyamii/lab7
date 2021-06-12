@@ -236,6 +236,17 @@ public class DatabaseHandler {
         }
         allCities.close();
     }
+
+    public void removeCitiesByGreaterPopulation(int population, String possibleOwner) throws SQLException{
+        PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
+        ResultSet resultSet = allCities.executeQuery();
+        while(resultSet.next()){
+            if((long) resultSet.getInt(7) > population){
+                removeCityByID(resultSet.getInt(1), possibleOwner);
+            }
+        }
+        allCities.close();
+    }
     public void clearCities(String possibleOwner) throws SQLException{
         PreparedStatement allCities = connection.prepareStatement(GET_ALL_CITIES_REQUEST);
         ResultSet resultSet = allCities.executeQuery();
