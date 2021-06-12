@@ -166,22 +166,26 @@ public class ClientUDP {
                         packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                     }
-                    else if(optionSplitted[0].equals("update_id")){
-                        //checking if collection has element with certain id
-                        /*String checkId = "check_id " + optionSplitted[1];
+                   else if(optionSplitted[0].equals("update_id")){
+                       //checking if collection has element with certain id
+                        String checkId = "check_id " + optionSplitted[1];
                         buf = checkId.getBytes();
                         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
                         socket.send(packet);
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
                         socket.receive(packet);
-                        String whatReceived = new String(packet.getData(), 0, packet.getLength());?*/
-
+                        String whatReceived = new String(packet.getData(), 0, packet.getLength());
+                        if(whatReceived.equals("okay")){
                             String out = optionSplitted[0] + " " + username +  " " +
                                     mapper.writeValueAsString(updateCity(Long.parseLong(optionSplitted[1])));
                             buf = out.getBytes();
-                            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                             packet = new DatagramPacket(buf, buf.length, address, 4141);
                             socket.send(packet);
+                        }
+                        else{
+                            System.out.println(whatReceived);
                             continue;
+                        }
                     }
                     else if(optionSplitted[0].equals("remove_key")){
                         String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];

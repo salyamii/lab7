@@ -92,7 +92,7 @@ public class ServerUDP extends Thread{
             packet = new DatagramPacket(bufReceive, bufReceive.length, address, port);
             String received = new String(packet.getData(), 0, packet.getLength());
             String[] received_arg = received.trim().split(" ", 3);
-            String sent;
+            String sent = "xxx";
             switch (received_arg[0]) {
                 case "exit":
                     sent = option.get(received_arg[0]).run();
@@ -101,18 +101,18 @@ public class ServerUDP extends Thread{
                 case "check":
                     sent = "Server is online.";
                     break;
-                /*case "check_id":
-                    HashMap<Long, City> temp = administrator.getCities();
+                case "check_id":
                     try {
-                        if (temp.containsKey(Long.parseLong(received_arg[1]))) {
-                            sent = "okay";
-                        } else
-                            sent = "You are trying to update non-existing city.\n";
-                    } catch (NumberFormatException numberFormatException) {
+                        if(ca.getDatabaseHandler().checkID(Long.parseLong(received_arg[1]))) sent = "okay";
+                        else sent = "You are trying to update non-existing city.";
+                    } catch (SQLException sqlException) {
+                        sqlException.printStackTrace();
+                    }
+                    catch (NumberFormatException numberFormatException) {
                         sent = "Invalid format of ID.\n";
                     }
 
-                    break;*/
+                    break;
                 case "register":
                     try {
                         if(ca.getDatabaseHandler().registerUser(received_arg[1], received_arg[2])){
