@@ -4,9 +4,9 @@ public class ServerMain {
     private static String path;
 
     public static void main(String[] args) {
-        String jdbcURL = "jdbc:postgresql://localhost:4141/studs";
-        String usernameDB = "s313319";
-        String passwordDB = "rwc080";
+        String jdbcURL = "jdbc:postgresql://pg:5432/studs";
+        String usernameDB = "********";
+        String passwordDB = "********";
         try{
             Class.forName("org.postgresql.Driver");
         }

@@ -94,7 +94,7 @@ public class ClientUDP {
                 switch (regOrLog[0]){
                     case "register":
                         buf = ("register " + regOrLog[1] + " " + regOrLog[2]).getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
 
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
@@ -109,7 +109,7 @@ public class ClientUDP {
                         break;
                     case "login":
                         buf = ("login " + regOrLog[1] + " " + regOrLog[2]).getBytes();
-                        packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
 
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
@@ -142,7 +142,7 @@ public class ClientUDP {
                     if(optionSplitted[0].equals("exit")){
                         running = false;
                         buf = ("exit").getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
 
 
@@ -154,7 +154,7 @@ public class ClientUDP {
                         //checking if server is online
                         String check = "check";
                         buf = check.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
                         socket.receive(packet);
@@ -163,14 +163,14 @@ public class ClientUDP {
 
                         String out = optionSplitted[0] + " " + username + " " + mapper.writeValueAsString(makeCity());
                         buf = out.getBytes();
-                        packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                    else if(optionSplitted[0].equals("update_id")){
                        //checking if collection has element with certain id
                         String checkId = "check_id " + optionSplitted[1];
                         buf = checkId.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                         packet = new DatagramPacket(bufFromServer, bufFromServer.length);
                         socket.receive(packet);
@@ -180,7 +180,7 @@ public class ClientUDP {
                             String out = optionSplitted[0] + " " + username +  " " +
                                     mapper.writeValueAsString(updateCity(Long.parseLong(optionSplitted[1])));
                             buf = out.getBytes();
-                             packet = new DatagramPacket(buf, buf.length, address, 4141);
+                             packet = new DatagramPacket(buf, buf.length, address, 4149);
                             socket.send(packet);
                         }
                         else{
@@ -191,25 +191,25 @@ public class ClientUDP {
                     else if(optionSplitted[0].equals("remove_key")){
                         String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("remove_greater_key")){
                         String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("remove_lower_key")){
                         String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("remove_greater")){
                         String out = optionSplitted[0] + " " + username + " " + optionSplitted[1];
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("help")){
@@ -221,32 +221,44 @@ public class ClientUDP {
                     else if(optionSplitted[0].equals("info")){
                         String out = "info";
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("show")){
                         String out = "show";
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("clear")){
                         String out = "clear " + username;
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else if(optionSplitted[0].equals("group_counting_by_population")){
                         String out = "group_counting_by_population";
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
+                        socket.send(packet);
+                    }
+                    else if(optionSplitted[0].equals("count_by_establishment_date")){
+                        String out = "count_by_establishment_date " + optionSplitted[1];
+                        buf = out.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
+                        socket.send(packet);
+                    }
+                    else if(optionSplitted[0].equals("count_less_than_establishment_date")){
+                        String out = optionSplitted[0];
+                        buf = out.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
                     }
                     else{
 
                         String out = optionSplitted.length == 1 ? optionSplitted[0] : optionSplitted[0] + " " + optionSplitted[1];
                         buf = out.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4141);
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4149);
                         socket.send(packet);
 
                     }
@@ -277,8 +289,9 @@ public class ClientUDP {
             }
         }
        catch (IOException ioException){
-           System.err.println("\nThe server is not available now. Try later.");
-           System.exit(1);
+           System.out.println("\nThe server is not available now. Try later or exit the app.");
+           sendClient();
+           //System.exit(1);
        }
         catch(NoSuchElementException noSuchElementException){
             System.out.println("\nInput faced loop, skipped.");
